@@ -80,6 +80,7 @@ const Login = () => {
           placeholder="Password"
         />
         <button type="submit">Login</button>
+        <button type="submit">Login</button>
       </form>
      
     </div>
