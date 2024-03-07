@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 
-const LOGIN_MUTATION = /*actual login mutation definition here */;
+// const LOGIN_MUTATION = /*actual login mutation definition here */;
 
 const Login = () => {
   const [formData, setFormData] = useState({
