@@ -1,4 +1,4 @@
-const { User, Product, Order } = require("../models");
+const { User } = require("../models/User");
 const { signToken, AuthenticationError } = require("../utils/auth");
 const stripe = require("stripe")("sk_test_4eC39HqLyjWDarjtT1zdp7dc");
 
@@ -29,36 +29,36 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
-    checkout: async (parent, args, context) => {
-      const url = new URL(context.headers.referer).origin;
-      await Order.create({ products: args.products.map(({ _id }) => _id) });
-      const line_items = [];
-      for (const product of args.products) {
-        line_items.push({
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: product.name,
-              description: product.description,
-              images: [`${url}/images/${product.image}`],
-            },
-            unit_amount: product.price * 100,
-          },
-          quantity: product.purchaseQuantity,
-        });
-      }
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items,
-        mode: "payment",
-        success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${url}/`,
-      });
-      return {
-        id: session.id,
-      };
-    },
-  },
+  //   checkout: async (parent, args, context) => {
+  //     const url = new URL(context.headers.referer).origin;
+  //     await Order.create({ products: args.products.map(({ _id }) => _id) });
+  //     const line_items = [];
+  //     for (const product of args.products) {
+  //       line_items.push({
+  //         price_data: {
+  //           currency: "usd",
+  //           product_data: {
+  //             name: product.name,
+  //             description: product.description,
+  //             images: [`${url}/images/${product.image}`],
+  //           },
+  //           unit_amount: product.price * 100,
+  //         },
+  //         quantity: product.purchaseQuantity,
+  //       });
+  //     }
+  //     const session = await stripe.checkout.sessions.create({
+  //       payment_method_types: ["card"],
+  //       line_items,
+  //       mode: "payment",
+  //       success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
+  //       cancel_url: `${url}/`,
+  //     });
+  //     return {
+  //       id: session.id,
+  //     };
+  //   },
+  // },
   Mutation: {
     addUser: async (parent, args) => {
       const user = await User.create(args);
@@ -88,14 +88,14 @@ const resolvers = {
 
       throw AuthenticationError;
     },
-    updateProduct: async (parent, { _id, quantity }) => {
-      const decrement = Math.abs(quantity) * -1;
+    // updateProduct: async (parent, { _id, quantity }) => {
+    //   const decrement = Math.abs(quantity) * -1;
 
-      return await Product.findByIdAndUpdate(
-        _id,
-        { $inc: { quantity: decrement } },
-        { new: true }
-      );
+    //   return await Product.findByIdAndUpdate(
+    //     _id,
+    //     { $inc: { quantity: decrement } },
+    //     { new: true }
+    //   );
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
