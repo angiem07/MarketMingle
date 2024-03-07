@@ -1,8 +1,19 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-// const LOGIN_MUTATION = /*actual login mutation definition here */;
+// const LOGIN_MUTATION = gql`
+//   mutation Login($username: String!, $password: String!) {
+//     login(username: $username, password: $password) {
+//       token
+//       user {
+//         id
+//         username
+//       }
+//     }
+//   }
+// `;
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,9 +21,13 @@ const Login = () => {
     password: '',
   });
 
+  const navigate = useNavigate();
+
+  // const [loginMutation] = useMutation(LOGIN_MUTATION);
+
   const { username, password } = formData;
 
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+
 
   const handleChange = (e) => {
     setFormData({
@@ -37,20 +52,37 @@ const Login = () => {
       console.log('Login successful');
       console.log('Token:', token);
       console.log('User:', user);
+
+      navigate('./Dashboard')
       
     } catch (error) {
       console.error('Login failed', error.message);
     }
   };
 
+
   return (
     <div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        {/* ... (form input fields) */}
+      <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          placeholder="Username"
+        />
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Password"
+        />
+        <button type="submit">Login</button>
         <button type="submit">Login</button>
       </form>
-      {/* ... (additional UI elements or links) */}
+     
     </div>
   );
 };
