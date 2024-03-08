@@ -98,8 +98,9 @@ const resolvers = {
       );
     },
     login: async (parent, { email, password }) => {
+      console.log(email, password);
       const user = await User.findOne({ email });
-
+      console.log("user", user);
       if (!user) {
         throw AuthenticationError;
       }
@@ -107,11 +108,12 @@ const resolvers = {
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
+        console.log("inwt");
         throw AuthenticationError;
       }
 
       const token = signToken(user);
-
+      console.log("token", token);
       return { token, user };
     },
   },
