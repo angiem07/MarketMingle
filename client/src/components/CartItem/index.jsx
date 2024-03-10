@@ -1,40 +1,46 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { useStoreContext } from "../../utils/GlobalState";
 import { REMOVE_FROM_CART, UPDATE_CART_QUANTITY } from "../../utils/actions";
 import { idbPromise } from "../../utils/helpers";
 
 const CartItem = ({ item }) => {
+
   const [, dispatch] = useStoreContext();
 
-  const removeFromCart = () => {
+  const removeFromCart = item => {
     dispatch({
       type: REMOVE_FROM_CART,
-      _id: item._id,
+      _id: item._id
     });
-    idbPromise('cart', 'delete', item);
+    idbPromise('cart', 'delete', { ...item });
+
   };
 
   const onChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (value > 0) {
+    const value = e.target.value;
+    if (value === '0') {
+      dispatch({
+        type: REMOVE_FROM_CART,
+        _id: item._id
+      });
+      idbPromise('cart', 'delete', { ...item });
+
+    } else {
       dispatch({
         type: UPDATE_CART_QUANTITY,
         _id: item._id,
-        purchaseQuantity: value,
+        purchaseQuantity: parseInt(value)
       });
-      idbPromise('cart', 'put', { ...item, purchaseQuantity: value });
-    } else {
-      removeFromCart();
+      idbPromise('cart', 'put', { ...item, purchaseQuantity: parseInt(value) });
+
     }
-  };
+  }
 
   return (
     <div className="flex-row">
       <div>
         <img
           src={`/images/${item.image}`}
-          alt={`${item.name}`}
+          alt=""
         />
       </div>
       <div>
@@ -43,30 +49,21 @@ const CartItem = ({ item }) => {
           <span>Qty:</span>
           <input
             type="number"
-            min="1"
+            placeholder="1"
             value={item.purchaseQuantity}
             onChange={onChange}
           />
-          <button
-            onClick={removeFromCart}
-            aria-label={`Remove ${item.name} from cart`}
+          <span
+            role="img"
+            aria-label="trash"
+            onClick={() => removeFromCart(item)}
           >
             🗑️
-          </button>
+          </span>
         </div>
       </div>
     </div>
   );
-};
+}
 
-CartItem.propTypes = {
-  item: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    image: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    purchaseQuantity: PropTypes.number.isRequired,
-  }).isRequired,
-};
-
-export default React.memo(CartItem);
+export default CartItem;
