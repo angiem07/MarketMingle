@@ -9,41 +9,56 @@ import { useStoreContext } from '../../utils/GlobalState';
 import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from '../../utils/actions';
 import './style.css';
 
-const stripePromise = loadStripe('your_stripe_public_key');
+const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
 const Cart = () => {
-  const [{ cart, cartOpen }, dispatch] = useStoreContext();
+  const [state, dispatch] = useStoreContext();
   const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
   useEffect(() => {
-    async function initCart() {
-      const cartData = await idbPromise('cart', 'get');
-      dispatch({ type: ADD_MULTIPLE_TO_CART, products: cartData });
-    }
-
-    if (!cart.length) initCart();
-  }, [cart.length, dispatch]);
-
-  useEffect(() => {
     if (data) {
-      stripePromise.then((stripe) => {
-        stripe.redirectToCheckout({ sessionId: data.checkout.session });
+      stripePromise.then((res) => {
+        res.redirectToCheckout({ sessionId: data.checkout.session });
       });
     }
   }, [data]);
 
-  const toggleCart = () => dispatch({ type: TOGGLE_CART });
+  useEffect(() => {
+    async function getCart() {
+      const cart = await idbPromise('cart', 'get');
+      dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
+    }
 
-  const calculateTotal = () => 
-    cart.reduce((sum, item) => sum + item.price * item.purchaseQuantity, 0).toFixed(2);
+    if (!state.cart.length) {
+      getCart();
+    }
+  }, [state.cart.length, dispatch]);
 
-  const submitCheckout = () => {
-    const productIds = cart.flatMap(item => Array(item.purchaseQuantity).fill(item._id));
-    getCheckout({ variables: { products: productIds } });
-  };
+  function toggleCart() {
+    dispatch({ type: TOGGLE_CART });
+  }
 
-  
-};
+  function calculateTotal() {
+    let sum = 0;
+    state.cart.forEach((item) => {
+      sum += item.price * item.purchaseQuantity;
+    });
+    return sum.toFixed(2);
+  }
+
+  function submitCheckout() {
+    const productIds = [];
+
+    state.cart.forEach((item) => {
+      for (let i = 0; i < item.purchaseQuantity; i++) {
+        productIds.push(item._id);
+      }
+    });
+
+    getCheckout({
+      variables: { products: productIds },
+    });
+  }
 
   if (!state.cartOpen) {
     return (
@@ -82,11 +97,11 @@ const Cart = () => {
           <span role="img" aria-label="shocked">
             😱
           </span>
-          Your Cart is Empty
+          You haven't added anything to your cart yet!
         </h3>
       )}
     </div>
   );
-
+};
 
 export default Cart;
