@@ -51,8 +51,7 @@ export const QUERY_CATEGORIES = gql`
 export const QUERY_USER = gql`
   {
     user {
-      firstName
-      lastName
+      name
       orders {
         _id
         purchaseDate
@@ -71,10 +70,11 @@ export const QUERY_USER = gql`
 
 export const QUERY_PROFILE = gql`
   {
-    profile {
+    me {
       _id
-      firstName
-      lastName
+     name
+     username
+     email
     }
   }
 `;
@@ -82,10 +82,11 @@ export const QUERY_PROFILE = gql`
 
 export const QUERY_SINGLE_PROFILE = gql`
   query singleProfile($profileId: ID!) {
-    profile(profileId: $profileId) {
+    profile (profileId: $profileId) {
       _id
-      firstName
-      lastName
+      name
+      username
+      email
     }
   }
 `;
