@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const QUERY_PRODUCTS = gql`
   query getProducts($category: ID) {
@@ -49,8 +49,9 @@ export const QUERY_CATEGORIES = gql`
 `;
 
 export const QUERY_USER = gql`
-  {
-    user {
+  query user($username: String!) {
+    user(username: $username) {
+      _id
       firstName
       lastName
       orders {
@@ -69,16 +70,15 @@ export const QUERY_USER = gql`
   }
 `;
 
-export const QUERY_PROFILE = gql`
-  {
-    profile {
-      _id
-      firstName
-      lastName
-    }
-  }
-`;
-
+// export const QUERY_PROFILE = gql`
+//   {
+//     profile {
+//       _id
+//       firstName
+//       lastName
+//     }
+//   }
+// `;
 
 export const QUERY_SINGLE_PROFILE = gql`
   query singleProfile($profileId: ID!) {
@@ -89,5 +89,3 @@ export const QUERY_SINGLE_PROFILE = gql`
     }
   }
 `;
-
-
