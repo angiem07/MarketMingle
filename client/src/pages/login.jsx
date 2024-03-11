@@ -1,84 +1,76 @@
-import React, { useState } from "react";
-import { gql } from "@apollo/client";
-import { useMutation } from "@apollo/client";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { Link, useNavigate } from 'react-router-dom';
+import { LOGIN } from '../utils/mutations';
+import Auth from '../utils/auth';
 
-const LOGIN_MUTATION = gql`
-  mutation login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
-      token
-      user {
-        id
-        username
-      }
-    }
-  }
-`;
-
-const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
+function Login(props) {
   const navigate = useNavigate();
+  const [formState, setFormState] = useState({ email: '', password: '' });
+  const [login, { data, loading, error }] = useMutation(LOGIN);
 
-  const [login, { error }] = useMutation(LOGIN_MUTATION);
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const mutationResponse = await login({
+        variables: { email: formState.email, password: formState.password },
+      });
+      const token = mutationResponse.data.login.token;
+      localStorage.setItem('token', token);
+      Auth.login(token);
+      navigate('/home');
+  
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
-  const { username, password } = formData;
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormState({
+      ...formState,
+      [name]: value,
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(formData);
-    try {
-      const { data } = await login({
-        variables: {
-          username: formData.username,
-          password: formData.password,
-        },
-      });
-
-      const { token, user } = data.login;
-
-      console.log("Login successful");
-      console.log("Token:", token);
-      console.log("User:", user);
-
-      navigate("./Dashboard");
-    } catch (error) {
-      console.error("Login failed", error.message);
-    }
-  };
-
   return (
-    <div>
+    <div className="container my-1">
+      
+
       <h2>Login</h2>
-      {/* <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          placeholder="Username"
-        />
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Password"
-        />
-        <button type="submit">Login</button>
-      </form> */}
+      <form onSubmit={handleFormSubmit}>
+        <div className="flex-row space-between my-2">
+          <label htmlFor="email">Email:</label>
+          <input
+            placeholder="Email"
+            name="email"
+            type="email"
+            id="email"
+            onChange={handleChange}
+          />
+        </div>
+        <div className="flex-row space-between my-2">
+          <label htmlFor="pwd">Password:</label>
+          <input
+            placeholder="******"
+            name="password"
+            type="password"
+            id="pwd"
+            onChange={handleChange}
+          />
+        </div>
+        {error ? (
+          <div>
+            <p className="error-text">The provided credentials are incorrect</p>
+          </div>
+        ) : null}
+        <div className="flex-row flex-end">
+          <button type="submit">Submit</button>
+        </div>
+        <Link to="/signup">Don't have an account? Signup here</Link>
+      </form>
     </div>
   );
-};
+}
 
 export default Login;

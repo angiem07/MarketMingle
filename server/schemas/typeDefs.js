@@ -1,10 +1,15 @@
 const typeDefs = `
+type Category{
+  _id:ID
+  name:String!
+}
 type Product {
     _id: ID
     name: String
     description: String
     image: String
     price: Float
+    category: Category
 }
 type Order {
  _id: ID
@@ -37,10 +42,12 @@ input ProductInput {
     quantity: Int
   }
 type Query {
-    products: [Product]
+    categories: [Category]
+    products(category: ID, name: String): [Product]
+    product(_id: ID!):[Product]
     user: User
-    order: Order
-    checkout:  Checkout
+    order(_id: ID!): Order
+    checkout(products: [ID]!):  Checkout
     auth: Auth
 }
 type Mutation {

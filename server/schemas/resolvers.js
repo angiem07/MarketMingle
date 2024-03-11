@@ -1,39 +1,53 @@
-const { User, Product, Order } = require("../models");
+const { User, Product, Order, Category } = require("../models");
 const { signToken, AuthenticationError } = require("../utils/auth");
-const stripe = require("stripe")("sk_test_4eC39HqLyjWDarjtT1zdp7dc");
+const stripe = require("stripe")("sk_test_51OswYK07VB9gYcRnIPLLvKIyP36xzKpm3iCzS2ydvHVJRT0x8Fj6gMavRQRA5cQFvAOUQWRf0Fk6USbHj7Vm7vW900hTmNa3Zx");
 
 const resolvers = {
   Query: {
-    products: async () => {
-      return await Product.find();
+    categories: async () => {
+      return await Category.find();
+    },
+    products: async (parent, { category, name }) => {
+      let params = {};
+      if (category) {
+        params.category = category;
+      }
+      if (name) {
+        params.name = {
+          $regex: name,
+        };
+      }
+      return await Product.find(params).populate("category");
+    },
+    product: async (parent, { _id }) => {
+      return await Product.find(_id).populate("category");
     },
     user: async (parent, args, context) => {
       if (context.user) {
-        const user = await User.findById(context.user.id).populate({
-          path: "orders",
-          throgh: true,
-          select: "items",
+        const user = await User.findById({ _id: context.user._id }).populate({
+          path: "orders.products",
+          populate: "category",
         });
         user.orders.sort((a, b) => b.purchaseDate - a.purchaseDate);
         return user;
       }
       throw AuthenticationError;
     },
-    order: async (parent, { id }) => {
+    order: async (parent, { _id }, context) => {
       if (context.user) {
         const userOrders = await User.findById(context.user._id).populate({
-          path: "orders",
-          match: { id: id },
+          path: "orders.products",
+          populate: "category",
         });
-        return userOrders.orders[0];
+        return userOrders.orders.id(_id);
       }
       throw AuthenticationError;
     },
     checkout: async (parent, args, context) => {
       const url = new URL(context.headers.referer).origin;
-      await Order.create({ products: args.products.map(({ _id }) => _id) });
+      const order = new Order({ products: args.products });
       const line_items = [];
-      for (const product of args.products) {
+      for (const product of order.products) {
         line_items.push({
           price_data: {
             currency: "usd",
