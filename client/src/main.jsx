@@ -6,12 +6,13 @@ import App from './App.jsx';
 import Home from './pages/Home.jsx';
 import Detail from './pages/Detail';
 import NoMatch from './pages/NoMatch';
-import Login from './pages/Login';
+import Login from './pages/Login.jsx';
 import Signup from './pages/Signup';
 import Success from './pages/Success';
 import OrderHistory from './pages/OrderHistory';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
+import CartPage from './pages/CartPage';
 
 const router = createBrowserRouter([
   {
@@ -52,7 +53,10 @@ const router = createBrowserRouter([
         path: '/dashboard',
         element: <Dashboard />,
       },
-      // Add a protected route for Home, assuming isAuthenticated() is your auth check function
+      {
+        path: '/cart',
+        element: <CartPage />,
+      },
       {
         path: '/home',
         element: isAuthenticated() ? <Home /> : <Navigate to="/login" replace />,

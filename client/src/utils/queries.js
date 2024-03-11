@@ -70,6 +70,7 @@ export const QUERY_USER = gql`
   }
 `;
 
+
 // export const QUERY_PROFILE = gql`
 //   {
 //     profile {
@@ -80,12 +81,14 @@ export const QUERY_USER = gql`
 //   }
 // `;
 
+
 export const QUERY_SINGLE_PROFILE = gql`
   query singleProfile($profileId: ID!) {
-    profile(profileId: $profileId) {
+    profile (profileId: $profileId) {
       _id
-      firstName
-      lastName
+      name
+      username
+      email
     }
   }
 `;
