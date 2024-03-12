@@ -49,46 +49,27 @@ export const QUERY_CATEGORIES = gql`
 `;
 
 export const QUERY_USER = gql`
-  query user($username: String!) {
-    user(username: $username) {
-      _id
-      firstName
-      lastName
-      orders {
-        _id
-        purchaseDate
-        products {
-          _id
-          name
-          description
-          price
-          quantity
-          image
-        }
-      }
-    }
-  }
-`;
-
-
-// export const QUERY_PROFILE = gql`
-//   {
-//     profile {
-//       _id
-//       firstName
-//       lastName
-//     }
-//   }
-// `;
-
-
-export const QUERY_SINGLE_PROFILE = gql`
-  query singleProfile($profileId: ID!) {
-    profile (profileId: $profileId) {
+  query User {
+    user {
       _id
       name
       username
       email
+      orders {
+        _id
+        purchasedDate
+        products {
+          _id
+          name
+          description
+          image
+          price
+          category {
+            _id
+            name
+          }
+        }
+      }
     }
   }
 `;
