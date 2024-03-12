@@ -49,3 +49,12 @@ export const ADD_USER = gql`
     }
   }
 `;
+
+export const QUERY_CHECKOUT = gql`
+mutation getCheckout($products: [ID]!) {
+    checkout(products: $products) {
+      session
+    }
+  }
+`;
+

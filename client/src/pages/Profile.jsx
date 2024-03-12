@@ -16,6 +16,7 @@ const Profile = () => {
     variables: { profileId: profileId },
   });
 
+
   // Extract user data from the response
   const user = data?.user || {};
 
@@ -50,9 +51,11 @@ const Profile = () => {
       {Auth.getProfile()?.data?.username === user.username && (
         <section className="text-center my-5">
           <Link to={`/profile/${user._id}/edit`}>Edit Your Profile</Link>
+
           <button className="btn btn-outline-info" type="submit">
             Edit Your Profile
           </button>
+
         </section>
       )}
     </div>
