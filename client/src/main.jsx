@@ -1,67 +1,79 @@
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 
-import App from './App.jsx';
-import Home from './pages/Home.jsx';
-import Detail from './pages/Detail';
-import NoMatch from './pages/NoMatch';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Success from './pages/Success';
-import OrderHistory from './pages/OrderHistory';
-import Profile from './pages/Profile';
-import Dashboard from './pages/Dashboard';
+import App from "./App.jsx";
+import Home from "./pages/Home.jsx";
+import Detail from "./pages/Detail";
+import NoMatch from "./pages/NoMatch";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Success from "./pages/Success";
+import OrderHistory from "./pages/OrderHistory";
+import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <App />,
     error: <NoMatch />,
     children: [
       // Redirect from the index route to "/login" by default
       {
         index: true,
-        element: isAuthenticated() ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />,
+        element: isAuthenticated() ? (
+          <Navigate to="/home" replace />
+        ) : (
+          <Navigate to="/login" replace />
+        ),
       },
       {
-        path: '/login',
+        path: "/login",
         element: <Login />,
       },
       {
-        path: '/signup',
+        path: "/signup",
         element: <Signup />,
       },
       {
-        path: '/success',
+        path: "/success",
         element: <Success />,
       },
       {
-        path: '/orderHistory',
+        path: "/orderHistory",
         element: <OrderHistory />,
       },
       {
-        path: '/products/:id',
+        path: "/products/:id",
         element: <Detail />,
       },
       {
-        path: '/profile',
+        path: "/profile",
         element: <Profile />,
       },
       {
-        path: '/dashboard',
+        path: "/dashboard",
         element: <Dashboard />,
       },
       // Add a protected route for Home, assuming isAuthenticated() is your auth check function
       {
-        path: '/home',
-        element: isAuthenticated() ? <Home /> : <Navigate to="/login" replace />,
+        path: "/home",
+        element: isAuthenticated() ? (
+          <Home />
+        ) : (
+          <Navigate to="/login" replace />
+        ),
       },
     ],
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <RouterProvider router={router} />
 );
 
@@ -69,6 +81,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Implement this function based on your authentication logic
 function isAuthenticated() {
   // This should be replaced with actual logic to check if the user is authenticated
-  const token = localStorage.getItem('id_token');
+  const token = localStorage.getItem("id_token");
   return !!token;
 }

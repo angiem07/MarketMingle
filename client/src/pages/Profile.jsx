@@ -1,35 +1,30 @@
 // import React from "react";
 import { Navigate, useParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { QUERY_SINGLE_PROFILE, QUERY_USER } from "../utils/queries";
+import { QUERY_USER } from "../utils/queries";
 import Auth from "../utils/auth";
 
 const Profile = () => {
   const { profileId } = useParams();
-
-  // Choose the appropriate query based on whether profileId is present or not
-  const query = profileId ? QUERY_SINGLE_PROFILE : QUERY_USER;
-
-  // Use useQuery hook to fetch data
-  const { loading, data } = useQuery(query, {
-    variables: { profileId: profileId || "" },
-  });
-
-  // Extract user data from the response
-  const user = profileId ? data?.profile : data?.me || {};
-
   // Redirect to login page if user is not authenticated
   if (!Auth.loggedIn()) {
     return <Navigate to="/login" />;
   }
+  // Use useQuery hook to fetch data
+  const { loading, data } = useQuery(QUERY_USER, {
+    variables: { profileId: profileId },
+  });
+
+  // Extract user data from the response
+  const user = data?.user || {};
 
   // Show loading indicator while data is being fetched
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  console.log("user", user);
   // If user data doesn't exist, display a message prompting the user to create a profile
-  if (!user?.firstName) {
+  if (!user?.name) {
     return (
       <div>
         <h4>
@@ -45,11 +40,11 @@ const Profile = () => {
     <div>
       <img
         src={user.image}
-        alt={`${user.firstName}'s profile picture`}
+        alt={`${user.name}'s profile picture`}
         style={{ maxWidth: "200px", marginLeft: "auto", marginRight: "auto" }}
       />
       <h2 className="col-12 col-md-10 bg-dark text-light p-3 mb-4">
-        {profileId ? `${user.firstName}'s Profile` : "Your Profile"}
+        {profileId ? `${user.name}'s Profile` : "Your Profile"}
       </h2>
       {Auth.getProfile()?.data?.username === user.username && (
         <section className="text-center my-5">
