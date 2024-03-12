@@ -1,4 +1,5 @@
-// import React from "react";
+// Assuming React is needed for JSX transformation, even if not explicitly used in this file.
+import React from "react"; 
 import { Navigate, useParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { QUERY_USER } from "../utils/queries";
@@ -28,14 +29,14 @@ const Profile = () => {
     return (
       <div>
         <h4>
-          You need a profile to view this page. Please create or log into your
-          account.
+          You need a profile to view this page. Please log in or sign up.
         </h4>
+        <Link to="/signup">Sign Up</Link>
       </div>
     );
   }
 
-  // Render user profile
+  // User profile display
   return (
     <div>
       <img

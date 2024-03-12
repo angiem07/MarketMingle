@@ -1,117 +1,97 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import React, { useEffect } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { QUERY_CHECKOUT } from '../../utils/queries';
+import { idbPromise } from '../../utils/helpers';
+import CartItem from '../CartItem';
+import Auth from '../../utils/auth';
+import { useStoreContext } from '../../utils/GlobalState';
+import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from '../../utils/actions';
+import './style.css';
+import { loadStripe } from '@stripe/stripe-js';
+import { Link } from 'react-router-dom';
 
-import Cart from '../components/Cart';
-import { useStoreContext } from '../utils/GlobalState';
-import {
-  REMOVE_FROM_CART,
-  UPDATE_CART_QUANTITY,
-  ADD_TO_CART,
-  UPDATE_PRODUCTS,
-} from '../utils/actions';
-import { QUERY_PRODUCTS } from '../utils/queries';
-import { idbPromise } from '../utils/helpers';
-import spinner from '../assets/spinner.gif';
+const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
-function Detail() {
+const Cart = ({ standalone = false }) => {
   const [state, dispatch] = useStoreContext();
-  const { id } = useParams();
-
-  const [currentProduct, setCurrentProduct] = useState({});
-
-  const { loading, data } = useQuery(QUERY_PRODUCTS);
-
-  const { products, cart } = state;
+  const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
   useEffect(() => {
-    // already in global store
-    if (products.length) {
-      setCurrentProduct(products.find((product) => product._id === id));
-    }
-    // retrieved from server
-    else if (data) {
-      dispatch({
-        type: UPDATE_PRODUCTS,
-        products: data.products,
-      });
-
-      data.products.forEach((product) => {
-        idbPromise('products', 'put', product);
-      });
-    }
-    // get cache from idb
-    else if (!loading) {
-      idbPromise('products', 'get').then((indexedProducts) => {
-        dispatch({
-          type: UPDATE_PRODUCTS,
-          products: indexedProducts,
+    if (data) {
+      stripePromise.then((stripe) => {
+        stripe.redirectToCheckout({ sessionId: data.checkout.session }).catch((err) => {
+          console.error("Stripe checkout error:", err);
         });
       });
+    } else if (loading) {
+      console.log('Retrieving checkout session...');
+    } else if (error) {
+      console.error("Checkout error:", error);
     }
-  }, [products, data, loading, dispatch, id]);
+  }, [data, loading, error]);
 
-  const addToCart = () => {
-    const itemInCart = cart.find((cartItem) => cartItem._id === id);
-    if (itemInCart) {
-      dispatch({
-        type: UPDATE_CART_QUANTITY,
-        _id: id,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1,
-      });
-      idbPromise('cart', 'put', {
-        ...itemInCart,
-        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1,
-      });
-    } else {
-      dispatch({
-        type: ADD_TO_CART,
-        product: { ...currentProduct, purchaseQuantity: 1 },
-      });
-      idbPromise('cart', 'put', { ...currentProduct, purchaseQuantity: 1 });
+  useEffect(() => {
+    async function getCart() {
+      const cart = await idbPromise('cart', 'get');
+      dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
     }
-  };
 
-  const removeFromCart = () => {
-    dispatch({
-      type: REMOVE_FROM_CART,
-      _id: currentProduct._id,
+    if (!state.cart.length) {
+      getCart();
+    }
+  }, [state.cart.length, dispatch]);
+
+  function toggleCart() {
+    dispatch({ type: TOGGLE_CART });
+  }
+
+  function calculateTotal() {
+    return state.cart.reduce((sum, item) => sum + item.price * item.purchaseQuantity, 0).toFixed(2);
+  }
+
+  function submitCheckout() {
+    const productIds = state.cart.map(item => item._id);
+    getCheckout({
+      variables: { products: productIds },
+    }).catch((err) => {
+      console.error("Error initiating checkout:", err);
     });
+  }
 
-    idbPromise('cart', 'delete', { ...currentProduct });
-  };
+  if (!state.cartOpen) {
+    return (
+      <div className="cart-closed" onClick={toggleCart}>
+        🛒
+      </div>
+    );
+  }
 
   return (
-    <>
-      {currentProduct && cart ? (
-        <div className="container my-1">
-          <Link to="/">← Back to Products</Link>
-
-          <h2>{currentProduct.name}</h2>
-
-          <p>{currentProduct.description}</p>
-
-          <p>
-            <strong>Price:</strong>${currentProduct.price}{' '}
-            <button onClick={addToCart}>Add to Cart</button>
-            <button
-              disabled={!cart.find((p) => p._id === currentProduct._id)}
-              onClick={removeFromCart}
-            >
-              Remove from Cart
-            </button>
-          </p>
-
-          <img
-            src={`/images/${currentProduct.image}`}
-            alt={currentProduct.name}
-          />
+    <div className="cart">
+      <div className="close" onClick={toggleCart}>[close]</div>
+      <h2>Shopping Cart</h2>
+      {state.cart.length ? (
+        <div>
+          {state.cart.map(item => (
+            <CartItem key={item._id} item={item} />
+          ))}
+          <div className="flex-row space-between">
+            <strong>Total: ${calculateTotal()}</strong>
+            {Auth.loggedIn() ? (
+              <button onClick={submitCheckout}>Checkout</button>
+            ) : (
+              <span>(log in to check out)</span>
+            )}
+          </div>
         </div>
-      ) : null}
-      {loading ? <img src={spinner} alt="loading" /> : null}
-      <Cart />
-    </>
+      ) : (
+        <h3>
+          <span role="img" aria-label="shocked">😱</span> You haven't added anything to your cart yet!
+        </h3>
+      )}
+      <Link to="/cart" className="button-to-full-cart">View Full Cart</Link>
+    </div>
   );
-}
+};
 
-export default Detail;
+export default Cart;
