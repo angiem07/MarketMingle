@@ -18,10 +18,10 @@ const Profile = () => {
   // Choose the appropriate query based on whether profileId is present or not
   const query = profileId ? QUERY_SINGLE_PROFILE : QUERY_USER;
 
-  // Use useQuery hook to fetch data
-  const { loading, data } = useQuery(query, {
-    variables: { profileId: profileId || "" },
-  });
+  // // Use useQuery hook to fetch data
+  // const { loading, data } = useQuery(query, {
+  //   variables: { profileId: profileId || "" },
+  // });
 
   // Extract user data from the response
   const user = profileId ? data?.profile : data?.me || {};
@@ -64,7 +64,7 @@ const Profile = () => {
         <section className="text-center my-5">
 
           <Link to={`/profile/${user._id}/edit`}>Edit Your Profile</Link>
-        </div>
+        </section>
       )}
     </div>
   );
