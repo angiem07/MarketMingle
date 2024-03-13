@@ -7,7 +7,7 @@ function CartPage() {
     <div className="container">
       <h1>Your Shopping Cart</h1>
       <Cart standalone={true} />
-      <Link to="/">Continue Shopping</Link>
+      <Link to="/home">Continue Shopping</Link>
     </div>
   );
 }
