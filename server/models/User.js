@@ -6,16 +6,33 @@ const Order = require("./Order");
 
 // User Schema
 const userSchema = new Schema({
-  name: { type: String, required: true, trim: true },
-  username: { type: String, required: true },
-  email: { type: String, unique: true, lowercase: true }, //email address of the user
+  name: { 
+    type: String, 
+    required: true, 
+    trim: true 
+  },
+
+  username: { 
+    type: String, 
+    required: true
+   },
+
+  email: { 
+    type: String, 
+    unique: true, 
+    
+    lowercase: true 
+  }, //email address of the user
+
   password: {
     type: String,
-    required: "Please provide a password",
+    required: true,
     minlength: 6,
   },
+
   orders: [Order.schema],
 });
+
 
 userSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("password")) {

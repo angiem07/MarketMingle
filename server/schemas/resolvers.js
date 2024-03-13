@@ -1,8 +1,6 @@
-const { User, Product, Order, Category } = require("../models");
-const { signToken, AuthenticationError } = require("../utils/auth");
-const stripe = require("stripe")(
-  "sk_test_51OswYK07VB9gYcRnIPLLvKIyP36xzKpm3iCzS2ydvHVJRT0x8Fj6gMavRQRA5cQFvAOUQWRf0Fk6USbHj7Vm7vW900hTmNa3Zx"
-);
+const { User, Product, Category, Order } = require('../models');
+const { signToken, AuthenticationError } = require('../utils/auth');
+const stripe = require('stripe')('sk_test_51OswYK07VB9gYcRnIPLLvKIyP36xzKpm3iCzS2ydvHVJRT0x8Fj6gMavRQRA5cQFvAOUQWRf0Fk6USbHj7Vm7vW900hTmNa3Zx');
 
 const resolvers = {
   Query: {
@@ -10,70 +8,87 @@ const resolvers = {
       return await Category.find();
     },
     products: async (parent, { category, name }) => {
-      let params = {};
+      const params = {};
+
       if (category) {
         params.category = category;
       }
+
       if (name) {
         params.name = {
-          $regex: name,
+          $regex: name
         };
       }
-      return await Product.find(params).populate("category");
+
+      return await Product.find(params).populate('category');
     },
+
     product: async (parent, { _id }) => {
-      return await Product.find(_id).populate("category");
+      return await Product.findById(_id).populate('category');
     },
+    
     user: async (parent, args, context) => {
       if (context.user) {
         const user = await User.findById(context.user._id).populate({
-          path: "orders.products",
-          populate: "category",
+          path: 'orders.products',
+          populate: 'category'
         });
+
         user.orders.sort((a, b) => b.purchaseDate - a.purchaseDate);
+
         return user;
       }
+
       throw AuthenticationError;
     },
     order: async (parent, { _id }, context) => {
       if (context.user) {
-        const userOrders = await User.findById(context.user._id).populate({
-          path: "orders.products",
-          populate: "category",
+        const user = await User.findById(context.user._id).populate({
+          path: 'orders.products',
+          populate: 'category'
         });
-        return userOrders.orders.id(_id);
+
+        return user.orders.id(_id);
       }
+
       throw AuthenticationError;
     },
     checkout: async (parent, args, context) => {
       const url = new URL(context.headers.referer).origin;
       const order = new Order({ products: args.products });
       const line_items = [];
-      for (const product of order.products) {
+
+      const { products } = await order.populate('products');
+
+      for (let i = 0; i < products.length; i++) {
+        const product = await stripe.products.create({
+          name: products[i].name,
+          description: products[i].description,
+          images: [`${url}/images/${products[i].image}`]
+        });
+
+        const price = await stripe.prices.create({
+          product: product.id,
+          unit_amount: products[i].price * 100,
+          currency: 'usd',
+        });
+
         line_items.push({
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: product.name,
-              description: product.description,
-              images: [`${url}/images/${product.image}`],
-            },
-            unit_amount: product.price * 100,
-          },
-          quantity: product.purchaseQuantity,
+          price: price.id,
+          quantity: 1
         });
       }
+
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
+        payment_method_types: ['card'],
         line_items,
-        mode: "payment",
+        mode: 'payment',
         success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${url}/`,
+        cancel_url: `${url}/`
       });
-      return {
-        id: session.id,
-      };
-    },
+
+      return { session: session.id };
+    }
   },
   Mutation: {
     addUser: async (parent, args) => {
@@ -86,9 +101,7 @@ const resolvers = {
       if (context.user) {
         const order = new Order({ products });
 
-        await User.findByIdAndUpdate(context.user._id, {
-          $push: { orders: order },
-        });
+        await User.findByIdAndUpdate(context.user._id, { $push: { orders: order } });
 
         return order;
       }
@@ -97,9 +110,7 @@ const resolvers = {
     },
     updateUser: async (parent, args, context) => {
       if (context.user) {
-        return await User.findByIdAndUpdate(context.user._id, args, {
-          new: true,
-        });
+        return await User.findByIdAndUpdate(context.user._id, args, { new: true });
       }
 
       throw AuthenticationError;
@@ -107,16 +118,11 @@ const resolvers = {
     updateProduct: async (parent, { _id, quantity }) => {
       const decrement = Math.abs(quantity) * -1;
 
-      return await Product.findByIdAndUpdate(
-        _id,
-        { $inc: { quantity: decrement } },
-        { new: true }
-      );
+      return await Product.findByIdAndUpdate(_id, { $inc: { quantity: decrement } }, { new: true });
     },
     login: async (parent, { email, password }) => {
-      console.log(email, password);
       const user = await User.findOne({ email });
-      console.log("user", user);
+
       if (!user) {
         throw AuthenticationError;
       }
@@ -124,14 +130,14 @@ const resolvers = {
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        console.log("inwt");
         throw AuthenticationError;
       }
 
       const token = signToken(user);
-      console.log("token", token);
+
       return { token, user };
-    },
-  },
+    }
+  }
 };
+
 module.exports = resolvers;

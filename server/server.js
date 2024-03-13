@@ -10,9 +10,10 @@ const cors = require('cors');
 const PORT = process.env.PORT || 3001;
 
 const app = express();
+
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow only the client application
-  credentials: true, // Allow cookies and authentication headers
+  origin: 'http://localhost:3001', 
+  credentials: true, 
 }));
 
 const server = new ApolloServer({

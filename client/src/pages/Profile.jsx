@@ -48,7 +48,7 @@ const Profile = () => {
       <h2 className="col-12 col-md-10 bg-dark text-light p-3 mb-4">
         {profileId ? `${user.name}'s Profile` : "Your Profile"}
       </h2>
-      {Auth.getProfile()?.data?.username === user.username && (
+      {Auth.getProfile()?.data?.email  === user.email && (
         <section className="text-center my-5">
           <Link to={`/profile/${user._id}/edit`}>Edit Your Profile</Link>
 
