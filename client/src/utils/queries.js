@@ -47,20 +47,26 @@ export const QUERY_CATEGORIES = gql`
 `;
 
 export const QUERY_USER = gql`
-  {
-    user {
-      name
-      orders {
-        _id
-        purchaseDate
-        products {
-          _id
+query Query {
+  user {
+    _id
+    email
+    name
+    orders {
+      buyer_id
+      products {
+        category {
           name
-          price
-          quantity
-          image
         }
+        description
+        image
+        name
+        price
       }
+      purchasedDate
+      seller_id
+      _id
     }
   }
+}
 `;
