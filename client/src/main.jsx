@@ -10,7 +10,7 @@ import App from "./App.jsx";
 import Home from "./pages/Home.jsx";
 import Detail from "./pages/Detail";
 import NoMatch from "./pages/NoMatch";
-import Login from "./pages/Login.jsx";
+import Login from "./pages/login.jsx";
 import Signup from "./pages/Signup";
 import Success from "./pages/Success";
 import OrderHistory from "./pages/OrderHistory";

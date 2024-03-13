@@ -23,7 +23,7 @@ db.once('open', async () => {
       quantity: 500
     },
     {
-      name: 'Broccoli.jpeg',
+      name: 'Broccoli',
       image: 'broccoli.jpeg',
       category: categories[0]._id,
       price: 1.99,
@@ -32,7 +32,7 @@ db.once('open', async () => {
     {
       name: 'Carrots',
       category: categories[1]._id,
-      image: 'toilet-paper.jpg',
+      image: 'carrots.jpeg',
       price: 3.99,
       quantity: 20
     },
@@ -46,16 +46,14 @@ db.once('open', async () => {
     {
       name: 'Mango',
       category: categories[0]._id,
-      description:
-        'Vivamus ut turpis in purus pretium mollis. Donec turpis odio, semper vel interdum ut, vulputate at ex. Duis dignissim nisi vel tortor imperdiet finibus. Aenean aliquam sagittis rutrum.',
-      image: 'wooden-spoons.jpg',
+      image: 'mango.jpeg',
       price: 2.99,
       quantity: 100
     },
     {
       name: 'Raspberries',
       category: categories[0]._id,
-      image: 'mango.jpeg',
+      image: 'raspberries,jpeg',
       price: 5.99,
       quantity: 30
     },
