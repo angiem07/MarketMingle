@@ -15,16 +15,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
+  "devDependencies": 
+  {  
     "concurrently": "^5.1.0"
   },
-  "dependencies": {
-    "@apollo/client": "^3.9.6",
-
-    "dotenv": "^16.4.5",
-    "graphql": "^16.8.1"
-   },
+  
   "engines": {
     "node": "^20.9.0",
     "npm": "^10.5.0"
