@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/market"
-);
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB connection successful'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 module.exports = mongoose.connection;
+
+
+
