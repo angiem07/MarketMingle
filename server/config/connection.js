@@ -1,11 +1,5 @@
-require('dotenv').config();
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connection successful'))
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://angelam2326:WkG3J0aoKF1Vnhc0@marketmingle.sldbah1.mongodb.net/market');
 
 module.exports = mongoose.connection;
-
-
-
