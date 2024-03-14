@@ -3,6 +3,7 @@ type Category{
   _id:ID
   name:String!
 }
+
 type Product {
     _id: ID
     name: String
@@ -11,6 +12,7 @@ type Product {
     price: Float
     category: Category
 }
+
 type Order {
  _id: ID
  purchasedDate: String
@@ -18,6 +20,7 @@ type Order {
  seller_id: ID  
  buyer_id: ID
 }
+
 type User {
     _id: ID
     name: String
@@ -35,7 +38,6 @@ type Auth {
 }
 
 
-
 type Query {
     categories: [Category]
     products(category: ID, name: String): [Product]
@@ -47,9 +49,9 @@ type Query {
 }
 
 type Mutation {
-    addUser(name: String!, username: String!, email: String!, password: String!): Auth
+    addUser(name: String!, email: String!, password: String!): Auth
     addOrder(products: [ID]!): Order
-    updateUser(name: String, username: String, email: String, password: String): User
+    updateUser(name: String, email: String, password: String): User
     updateProduct(_id: ID!, quantity: Int!): Product
     login(email: String!, password: String!): Auth
   }
