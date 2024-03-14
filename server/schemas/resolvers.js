@@ -7,7 +7,9 @@ const resolvers = {
     categories: async () => {
       return await Category.find();
     },
+    
     products: async (parent, { category, name }) => {
+      console.log('Inside products resolver')
       const params = {};
 
       if (category) {
@@ -20,7 +22,9 @@ const resolvers = {
         };
       }
 
-      return await Product.find(params).populate('category');
+      const result = await Product.find(params).populate('category');
+      console.log('Products result', result);
+      return result;
     },
 
     product: async (parent, { _id }) => {
