@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://angelam2326:WkG3J0aoKF1Vnhc0@marketmingle.sldbah1.mongodb.net/market');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mern-shopping');
 
 module.exports = mongoose.connection;
+g
