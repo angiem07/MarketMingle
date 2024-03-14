@@ -6,9 +6,10 @@
   "scripts": {
     "start": "node server --ignore client",
     "develop": "concurrently \"cd server && npm run start\" \"cd client && npm run dev\"",
-    "install": "cd server && npm i && cd ../client && npm i",
+    "install": "cd server && npm i && cd ../client && npm i --production=false",
     "seed": "cd server && npm run seed",
-    "build": "cd client && npm run build"
+    "build": "cd client && npm run build",
+    "render-build":"npm install && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.6",
-    "dotenv": "^16.4.5",
+
     "graphql": "^16.8.1"
   },
   "engines": {
